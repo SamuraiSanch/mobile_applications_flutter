@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_labs/custom_text_field.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -8,28 +9,18 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const TextField(
-              decoration: InputDecoration(labelText: 'Username'),
-              style: TextStyle(color: Colors.white), 
+            const CustomTextField(
+              labelText: 'Email',
             ),
-            const TextField(
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-              style: TextStyle(color: Colors.white), 
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/profile');
-              },
-              child: const Text('Login'),
+            const CustomTextField(
+              labelText: 'Password',
+              isPassword: true,
             ),
             const SizedBox(height: 10),
-            // Текстове посилання "Не маєте акаунту?"
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -38,7 +29,7 @@ class LoginPage extends StatelessWidget {
                     Navigator.pushNamed(context, '/register');
                   },
                   child: const Text(
-                    'Dont have an account?',
+                    'Don\'t have an account?',
                     style: TextStyle(
                       color: Colors.blueAccent,
                       fontSize: 12,
@@ -47,6 +38,13 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 15),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+              child: const Text('Sign in'),
             ),
           ],
         ),
