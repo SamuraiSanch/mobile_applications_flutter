@@ -7,7 +7,7 @@ class CustomTextField extends StatelessWidget {
 
   const CustomTextField({
     required this.labelText,
-    required this.controller, // Додаємо controller як required параметр
+    required this.controller, 
     this.isPassword = false,
     super.key,
   });
@@ -15,7 +15,7 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller, // Використовуємо controller
+      controller: controller, 
       obscureText: isPassword,
       decoration: InputDecoration(labelText: labelText),
       style: const TextStyle(color: Colors.white),

@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart'; 
+import 'package:flutter/material.dart';
 import 'package:flutter_labs/goal.dart';
 import 'package:flutter_labs/goal_repository.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class GoalRepositoryImpl implements GoalRepository {
   Database? _database;
@@ -56,5 +59,41 @@ class GoalRepositoryImpl implements GoalRepository {
   Future<void> deleteGoal(int id) async {
     final db = await database;
     await db.delete('goals', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Метод для додавання цілі з перевіркою інтернет-з'єднання
+  Future<void> addGoalWithInternetCheck(BuildContext context, Goal goal) async {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+
+    if (connectivityResult == ConnectivityResult.none) {
+      // Показати діалогове вікно про відсутність інтернету
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Colors.black,
+            title: const Text(
+              'No Internet Connection',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'You cannot add new goals without an internet connection.',
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: [
+              TextButton(
+                child: const Text('OK', style: TextStyle(color: Colors.white)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      
+      await addGoal(goal); // Викликається метод для додавання цілі
+    }
   }
 }

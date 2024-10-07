@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_labs/user_repository_impl.dart';
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({super.key});
@@ -10,6 +11,44 @@ class BottomNavigation extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween, // Відстань між фото
         children: [
+          
+          GestureDetector(
+            onTap: () async {
+              final shouldLogout = await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.black,
+                  title: const Text('Log out', style: TextStyle(color: Colors.white)),
+                  content: const Text('Are you sure you want to log out?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false); // Скасувати
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true); // Підтвердити
+                      },
+                      child: const Text('Log out'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (shouldLogout == true) {
+                await UserRepositoryImpl().logoutUser();  // Виклик розлогінювання
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);  // Повернути на сторінку логіну
+              }
+            },
+            child: Image.asset(
+              'assets/exit.png',
+              height: 50, // Висота зображення
+            ),
+          ),
+          
+         
           GestureDetector(
             onTap: () {
               // При натисканні нічого не відбувається - ця кнопка для лаб7
@@ -21,7 +60,7 @@ class BottomNavigation extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/main'); // main page
+              Navigator.pushNamed(context, '/main'); 
             },
             child: Image.asset(
               'assets/wall.png',
@@ -30,7 +69,7 @@ class BottomNavigation extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/profile'); // profile page
+              Navigator.pushNamed(context, '/profile'); 
             },
             child: Image.asset(
               'assets/user.png',
