@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_labs/user_repository.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UserRepositoryImpl implements UserRepository {
@@ -70,5 +71,10 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> clearUsers() async {
     final db = await database;
     await db.delete('users');
+  }
+  // Метод для видалення сесії користувача (розлогін)
+  Future<void> logoutUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('hasLoggedIn');
   }
 }

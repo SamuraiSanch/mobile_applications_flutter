@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_labs/custom_text_field.dart';
-import 'package:flutter_labs/user_repository_impl.dart'; 
+import 'package:flutter_labs/user_repository_impl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart'; 
 
 class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -9,33 +11,62 @@ class LoginPage extends StatelessWidget {
 
   LoginPage({super.key});
 
+  // Оновлена функція логіну з перевіркою інтернет-з'єднання
   Future<void> loginUser(BuildContext context) async {
-    final email = emailController.text;
-    final password = passwordController.text;
+    final connectivityResult = await (Connectivity().checkConnectivity());
 
-    // Перевірка користувача
-    final user = await userRepository.loginUser(email, password);
-
-    if (user != null) {
-      // Якщо користувач знайдений - рухаємось далі
-      Navigator.pushNamed(context, '/profile');
+    if (connectivityResult == ConnectivityResult.none) {
+      // Показуємо діалогове вікно при відсутності інтернету
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Colors.black,
+            title: const Text(
+              'No Internet Connection',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'Please check your internet connection and try again.',
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: [
+              TextButton(
+                child: const Text('OK', style: TextStyle(color: Colors.white)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     } else {
-      // Якщо дані неправильні — помилка
+     
+      final email = emailController.text;
+      final password = passwordController.text;
+
+      // Перевірка користувача
+      final user = await userRepository.loginUser(email, password);
+
+      if (user != null) {
+        // Зберігаємо сесію
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('hasLoggedIn', true);
+        
+        // Якщо користувач знайдений - рухаємось далі
+        Navigator.pushNamed(context, '/profile');
+      } else {
+        // Якщо дані неправильні — помилка
         showDialog(
           context: context,
           builder: (context) => const AlertDialog(
-            backgroundColor: Colors.black, 
-            title: Text(
-              'Login failed',
-              style: TextStyle(color: Colors.white), 
-            ),
-            content: Text(
-              'Invalid email or password.',
-              style: TextStyle(color: Colors.white), 
-    ),
-  ),
-);
-
+            backgroundColor: Colors.black,
+            title: Text('Error', style: TextStyle(color: Colors.white)),
+            content: Text('Incorrect email or password', style: TextStyle(color: Colors.white)),
+          ),
+        );
+      }
     }
   }
 
@@ -50,12 +81,12 @@ class LoginPage extends StatelessWidget {
           children: [
             CustomTextField(
               labelText: 'Email',
-              controller: emailController, // Передаємо контролер
+              controller: emailController, 
             ),
             CustomTextField(
               labelText: 'Password',
               isPassword: true,
-              controller: passwordController, // Передаємо контролер
+              controller: passwordController, 
             ),
             const SizedBox(height: 10),
             Row(
@@ -79,7 +110,7 @@ class LoginPage extends StatelessWidget {
             const SizedBox(height: 15),
             ElevatedButton(
               onPressed: () {
-                loginUser(context); // Викликаємо логіку логіну
+                loginUser(context); 
               },
               child: const Text('Sign in'),
             ),

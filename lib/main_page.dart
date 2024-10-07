@@ -1,8 +1,10 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_labs/bottom_navigation.dart';
 import 'package:flutter_labs/goal.dart';
 import 'package:flutter_labs/goal_repository_impl.dart';
-
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -16,10 +18,56 @@ class _MainPageState extends State<MainPage> {
   List<Goal> goals = [];
   final TextEditingController goalController = TextEditingController();
 
+  late StreamSubscription<List<ConnectivityResult>> subscription; 
+  bool _isOffline = false; 
+
   @override
   void initState() {
     super.initState();
     _loadGoals();
+    
+   
+    subscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> resultList) {
+      if (resultList.isNotEmpty && resultList.contains(ConnectivityResult.none)) {
+        setState(() {
+          _isOffline = true;
+        });
+        _showConnectionLostDialog();
+      } else {
+        setState(() {
+          _isOffline = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkConnectivity(); // Перевірка стану з'єднання при кожному поверненні
+  }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    goalController.dispose(); 
+    super.dispose();
+  }
+
+  // Перевірка стану інтернету
+  void _checkConnectivity() {
+    Connectivity().checkConnectivity().then((connectivityResult) {
+      if (connectivityResult == ConnectivityResult.none) {
+        setState(() {
+          _isOffline = true;
+        });
+        _showConnectionLostDialog();
+      } else {
+        setState(() {
+          _isOffline = false;
+        });
+      }
+    });
   }
 
   Future<void> _loadGoals() async {
@@ -31,17 +79,19 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _addGoal() async {
     final String text = goalController.text;
-    if (text.isNotEmpty) {
+    if (_isOffline) {
+      _showErrorDialog('No internet connection. Please connect to the internet to add a goal.');
+    } else if (text.isNotEmpty) {
       final newGoal = Goal(text: text);
       await goalRepository.addGoal(newGoal);
       _loadGoals();
       goalController.clear();
     } else {
-      _showErrorDialog();
+      _showErrorDialog('Please enter a goal.');
     }
   }
 
-  void _showErrorDialog() {
+  void _showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -51,9 +101,9 @@ class _MainPageState extends State<MainPage> {
             'Error',
             style: TextStyle(color: Colors.white),
           ),
-          content: const Text(
-            'Please enter a goal.',
-            style: TextStyle(color: Colors.white),
+          content: Text(
+            message,
+            style: const TextStyle(color: Colors.white),
           ),
           actions: [
             TextButton(
@@ -64,6 +114,33 @@ class _MainPageState extends State<MainPage> {
                 'OK',
                 style: TextStyle(color: Colors.lightBlue),
               ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showConnectionLostDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: const Text(
+            'Connection Lost',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+            'Your internet connection has been lost.',
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
           ],
         );
@@ -168,6 +245,14 @@ class _MainPageState extends State<MainPage> {
                 ],
               ),
             ),
+            if (_isOffline)
+              const Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'No internet connection. Cannot add goals.',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
           ],
         ),
       ),
@@ -179,7 +264,7 @@ class BrickWallPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.shade800 // Колір стіни
+      ..color = Colors.grey.shade800 
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
@@ -188,10 +273,10 @@ class BrickWallPainter extends CustomPainter {
     const offsetY = 5.0; // Вертикальна відстань між рядами
     const verticalShift = -23.0; // Зміщення текстури вгору
 
-    for (double y = verticalShift; y < size.height; y += brickHeight + offsetY) {
+    for (double y = verticalShift; y < size.height; y += brickHeight + offsetY){
       final bool offset = (y / (brickHeight + offsetY)).toInt() % 2 == 1;
 
-      for (double x = offset ? -brickWidth / 2 : 0; x < size.width; x += brickWidth) {
+      for (double x = offset ? -brickWidth / 2 : 0; x < size.width; x += brickWidth) { 
         canvas.drawRect(
           Rect.fromLTWH(x, y, brickWidth, brickHeight),
           paint,

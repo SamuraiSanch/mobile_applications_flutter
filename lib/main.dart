@@ -1,15 +1,22 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_labs/login_page.dart';
 import 'package:flutter_labs/main_page.dart';
-import 'package:flutter_labs/profile_page.dart';
-import 'package:flutter_labs/register_page.dart';
+import 'package:flutter_labs/profile_page.dart';  
+import 'package:flutter_labs/register_page.dart'; 
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final hasLoggedIn = prefs.getBool('hasLoggedIn') ?? false;
+
+  runApp(MyApp(hasLoggedIn: hasLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasLoggedIn;
+
+  const MyApp({super.key, required this.hasLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +25,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: const Color.fromARGB(255, 33, 33, 33),
         textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: Colors.white), // Базовий текст білий
-          titleMedium: TextStyle(color: Colors.white), // Для заголовків
+          bodyMedium: TextStyle(color: Colors.white),
+          titleMedium: TextStyle(color: Colors.white),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -27,22 +34,15 @@ class MyApp extends StatelessWidget {
           ),
         ),
         inputDecorationTheme: const InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.white),//Білий колір для txt полів
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color.fromARGB(255, 20, 153, 242)),
-          ),
-          hintStyle: TextStyle(color: Colors.white70),//Підказки будуть білуваті
+          labelStyle: TextStyle(color: Colors.white),
         ),
       ),
-      initialRoute: '/',
+      initialRoute: hasLoggedIn ? '/main' : '/login',
       routes: {
-        '/': (context) => LoginPage(),
-        '/register': (context) => const RegisterPage(),
-        '/profile': (context) => const ProfilePage(),
+        '/login': (context) => LoginPage(),
         '/main': (context) => const MainPage(),
+        '/profile': (context) => const ProfilePage(),  
+        '/register': (context) => const RegisterPage(),  
       },
     );
   }
