@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_labs/user_repository_impl.dart';
+import 'quotes_page.dart';  // Import the quotes page
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({super.key});
@@ -51,7 +52,10 @@ class BottomNavigation extends StatelessWidget {
          
           GestureDetector(
             onTap: () {
-              // При натисканні нічого не відбувається - ця кнопка для лаб7
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const QuotesPage()),  // Navigate to QuotesPage
+              );
             },
             child: Image.asset(
               'assets/secret.png',
