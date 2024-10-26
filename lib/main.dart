@@ -1,9 +1,9 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_labs/login_page.dart';
 import 'package:flutter_labs/main_page.dart';
-import 'package:flutter_labs/profile_page.dart';  
-import 'package:flutter_labs/register_page.dart'; 
+import 'package:flutter_labs/profile_page.dart';
+import 'package:flutter_labs/register_page.dart';
+import 'package:shared_preferences/shared_preferences.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +16,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final bool hasLoggedIn;
 
-  const MyApp({super.key, required this.hasLoggedIn});
+  const MyApp({required this.hasLoggedIn, super.key});
 
   @override
   Widget build(BuildContext context) {

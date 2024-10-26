@@ -1,8 +1,8 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_labs/custom_text_field.dart';
 import 'package:flutter_labs/user_repository_impl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:connectivity_plus/connectivity_plus.dart'; 
+import 'package:shared_preferences/shared_preferences.dart'; 
 
 class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
