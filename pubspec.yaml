@@ -8,6 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flashlight_plugin:
+    path: plugins/flashlight_plugin
   shared_preferences: ^2.0.15
   cupertino_icons: ^1.0.8
   sqflite: ^2.3.3+2
